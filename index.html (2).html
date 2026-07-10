@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZERØTENSE — 360° Tour Production, Bangalore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --obsidian:#0a0a0b;
+    --obsidian-2:#131315;
+    --obsidian-3:#1b1b1e;
+    --bone:#f2ede2;
+    --bone-dim:#c9c3b6;
+    --brass:#b98a52;
+    --brass-bright:#e0ab6e;
+    --slate:#6c6f78;
+    --line: rgba(242,237,226,0.12);
+    --line-strong: rgba(242,237,226,0.22);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--obsidian);
+    color:var(--bone);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--brass); color:var(--obsidian);}
+  a{color:inherit; text-decoration:none;}
+  img{max-width:100%; display:block;}
+  .wrap{max-width:1240px; margin:0 auto; padding:0 40px;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--brass-bright);
+  }
+  h1,h2,h3{font-family:'Fraunces', serif; font-weight:500; letter-spacing:-0.01em;}
+  .serif-light{font-weight:300; font-style:italic;}
+
+  /* ---------- NAV ---------- */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:rgba(10,10,11,0.72);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 40px; max-width:1240px; margin:0 auto;
+  }
+  .logo{
+    font-family:'Fraunces', serif; font-size:19px; letter-spacing:0.02em; font-weight:500;
+    display:flex; align-items:baseline; gap:2px;
+  }
+  .logo .o{color:var(--brass-bright);}
+  .nav-links{display:flex; gap:36px; font-size:13.5px; color:var(--bone-dim);}
+  .nav-links a{transition:color .25s ease; position:relative;}
+  .nav-links a:hover{color:var(--bone);}
+  .nav-cta{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:0.08em;
+    border:1px solid var(--line-strong); padding:9px 18px; border-radius:2px;
+    text-transform:uppercase; transition:all .25s ease;
+  }
+  .nav-cta:hover{border-color:var(--brass); color:var(--brass-bright);}
+  .nav-mobile-toggle{display:none;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:170px 0 0 0;
+    position:relative;
+  }
+  .hero-top{
+    display:grid; grid-template-columns:1.4fr 0.8fr; gap:60px;
+    align-items:end;
+    padding-bottom:56px;
+  }
+  .hero h1{
+    font-size:clamp(40px, 5.6vw, 78px);
+    line-height:1.03;
+    margin-top:18px;
+    max-width:760px;
+  }
+  .hero-sub{
+    font-size:15.5px; color:var(--bone-dim); line-height:1.65;
+    max-width:320px; padding-bottom:8px;
+  }
+  .hero-actions{
+    display:flex; gap:14px; margin-top:34px; flex-wrap:wrap;
+  }
+  .btn-primary{
+    background:var(--brass-bright); color:var(--obsidian);
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.06em;
+    text-transform:uppercase; padding:15px 26px; border-radius:2px;
+    transition:transform .25s ease, background .25s ease;
+    display:inline-block;
+  }
+  .btn-primary:hover{background:var(--bone); transform:translateY(-2px);}
+  .btn-secondary{
+    border:1px solid var(--line-strong);
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.06em;
+    text-transform:uppercase; padding:15px 26px; border-radius:2px;
+    transition:all .25s ease;
+    display:inline-block;
+  }
+  .btn-secondary:hover{border-color:var(--brass); color:var(--brass-bright);}
+
+  /* ---------- PANORAMA / SIGNATURE ---------- */
+  .pano-shell{
+    position:relative;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    background:var(--obsidian-2);
+  }
+  .pano-viewport{
+    position:relative;
+    height:420px;
+    overflow:hidden;
+    cursor:grab;
+    user-select:none;
+  }
+  .pano-viewport.dragging{cursor:grabbing;}
+  .pano-strip{
+    position:absolute; top:0; left:0; height:100%;
+    display:flex;
+    will-change:transform;
+  }
+  .pano-panel{
+    width:640px; height:100%; flex-shrink:0;
+    position:relative;
+    display:flex; align-items:center; justify-content:center;
+    border-right:1px solid var(--line);
+  }
+  .pano-panel svg{width:100%; height:100%;}
+  .pano-hint{
+    position:absolute; bottom:22px; left:50%; transform:translateX(-50%);
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:0.18em;
+    text-transform:uppercase; color:var(--bone-dim);
+    display:flex; align-items:center; gap:10px;
+    pointer-events:none;
+    opacity:0.85;
+  }
+  .pano-hint .arrows{color:var(--brass-bright); letter-spacing:0.4em;}
+
+  .dial-wrap{
+    position:absolute; top:24px; right:28px;
+    display:flex; align-items:center; gap:12px;
+    font-family:'IBM Plex Mono', monospace;
+    pointer-events:none;
+  }
+  .dial{width:56px; height:56px;}
+  .dial-deg{font-size:20px; color:var(--brass-bright); letter-spacing:0.02em;}
+  .dial-label{font-size:9.5px; color:var(--slate); letter-spacing:0.16em; text-transform:uppercase; margin-top:2px;}
+
+  /* ---------- MARQUEE STRIP ---------- */
+  .marquee{
+    border-bottom:1px solid var(--line);
+    padding:14px 0;
+    overflow:hidden;
+    white-space:nowrap;
+  }
+  .marquee-track{
+    display:inline-flex;
+    animation:scroll 32s linear infinite;
+  }
+  .marquee span{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.1em;
+    color:var(--slate); text-transform:uppercase; padding:0 28px;
+    display:inline-flex; align-items:center; gap:28px;
+  }
+  .marquee span::after{content:'◆'; color:var(--brass); font-size:8px;}
+  @keyframes scroll{from{transform:translateX(0);} to{transform:translateX(-50%);}}
+
+  /* ---------- SECTION generic ---------- */
+  section{padding:120px 0;}
+  .section-head{
+    display:grid; grid-template-columns:1fr 1fr; gap:40px;
+    align-items:end; margin-bottom:64px;
+  }
+  .section-head h2{font-size:clamp(30px,3.4vw,44px); margin-top:14px; max-width:480px;}
+  .section-head p{color:var(--bone-dim); font-size:14.5px; line-height:1.7; max-width:380px;}
+
+  /* ---------- SERVICES ---------- */
+  .services{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line);
+  }
+  .service-card{
+    background:var(--obsidian); padding:44px 34px;
+    transition:background .3s ease;
+  }
+  .service-card:hover{background:var(--obsidian-2);}
+  .service-num{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--brass); letter-spacing:0.1em;}
+  .service-card h3{font-size:23px; margin:22px 0 14px; font-weight:400;}
+  .service-card p{font-size:14px; color:var(--bone-dim); line-height:1.7;}
+  .service-icon{width:34px; height:34px; margin-bottom:8px;}
+
+  /* ---------- WORK GALLERY ---------- */
+  .work-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:26px;
+  }
+  .work-card{
+    perspective:1200px;
+  }
+  .work-face{
+    aspect-ratio:4/5;
+    border:1px solid var(--line);
+    background:var(--obsidian-2);
+    position:relative; overflow:hidden;
+    transition:transform .55s cubic-bezier(.2,.8,.2,1), border-color .3s ease;
+    transform-style:preserve-3d;
+  }
+  .work-card:hover .work-face{transform:rotateY(-6deg) rotateX(2deg) scale(1.02); border-color:var(--line-strong);}
+  #tejaShreeCard:hover #tejaShreeFace{transform:none;}
+  .work-face svg{position:absolute; inset:0; width:100%; height:100%;}
+  .work-meta{
+    position:absolute; left:0; right:0; bottom:0; padding:20px;
+    background:linear-gradient(180deg, transparent, rgba(10,10,11,0.92) 70%);
+  }
+  .work-tag{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; color:var(--brass-bright); text-transform:uppercase;}
+  .work-title{font-family:'Fraunces',serif; font-size:19px; margin-top:6px; font-weight:400;}
+  .work-sub{font-size:12px; color:var(--bone-dim); margin-top:3px;}
+
+  /* ---------- PROCESS ---------- */
+  .process-list{border-top:1px solid var(--line);}
+  .process-row{
+    display:grid; grid-template-columns:80px 1fr 1.4fr;
+    gap:32px; padding:34px 0; border-bottom:1px solid var(--line);
+    align-items:start;
+  }
+  .process-row .pnum{font-family:'IBM Plex Mono',monospace; color:var(--brass); font-size:13px; padding-top:4px;}
+  .process-row h3{font-size:22px; font-weight:400;}
+  .process-row p{color:var(--bone-dim); font-size:14px; line-height:1.7; max-width:460px;}
+  .process-row .ptime{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--slate); margin-top:8px; letter-spacing:0.06em;}
+
+  /* ---------- STATS ---------- */
+  .stats{
+    display:grid; grid-template-columns:repeat(4,1fr);
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
+  .stat{padding:44px 34px; border-right:1px solid var(--line);}
+  .stat:last-child{border-right:none;}
+  .stat-num{font-family:'Fraunces',serif; font-size:44px; color:var(--brass-bright); font-weight:400;}
+  .stat-label{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--bone-dim); margin-top:10px;}
+
+  /* ---------- TESTIMONIAL ---------- */
+  .testimonial{
+    text-align:center; max-width:760px; margin:0 auto; padding:0 20px;
+  }
+  .testimonial blockquote{
+    font-family:'Fraunces',serif; font-weight:300; font-style:italic;
+    font-size:clamp(22px,2.8vw,32px); line-height:1.5; color:var(--bone);
+  }
+  .testimonial cite{
+    display:block; margin-top:28px; font-style:normal;
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--brass-bright); letter-spacing:0.06em;
+  }
+
+  /* ---------- PRICING ---------- */
+  .pricing-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line);
+  }
+  .price-card{
+    background:var(--obsidian); padding:40px 32px;
+    display:flex; flex-direction:column;
+    transition:background .3s ease;
+  }
+  .price-card.featured{background:var(--obsidian-2);}
+  .price-card:hover{background:var(--obsidian-2);}
+  .price-tag{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--brass-bright);
+  }
+  .price-card h3{font-size:22px; font-weight:400; margin:16px 0 6px;}
+  .price-amount{
+    font-family:'Fraunces',serif; font-size:38px; color:var(--bone); margin:10px 0 4px;
+  }
+  .price-amount span{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--slate); font-weight:400;}
+  .price-desc{font-size:13px; color:var(--bone-dim); line-height:1.6; margin-bottom:24px;}
+  .price-list{list-style:none; flex-grow:1;}
+  .price-list li{
+    font-size:13.5px; color:var(--bone-dim); padding:10px 0; border-top:1px solid var(--line);
+    display:flex; gap:10px; align-items:baseline;
+  }
+  .price-list li::before{content:'—'; color:var(--brass);}
+  .price-card .btn-secondary{margin-top:28px; text-align:center;}
+  .price-card.featured .btn-secondary{background:var(--brass-bright); color:var(--obsidian); border-color:var(--brass-bright);}
+  .price-card.featured .btn-secondary:hover{background:var(--bone); border-color:var(--bone);}
+
+  /* ---------- TESTIMONIAL GRID ---------- */
+  .testi-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line);
+  }
+  .testi-card{background:var(--obsidian); padding:36px 30px;}
+  .testi-card blockquote{
+    font-family:'Fraunces',serif; font-weight:300; font-style:italic;
+    font-size:16.5px; line-height:1.6; color:var(--bone);
+  }
+  .testi-card cite{
+    display:block; margin-top:22px; font-style:normal;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--brass-bright); letter-spacing:0.05em;
+  }
+  .testi-card .role{color:var(--slate); font-size:11px; margin-top:2px; display:block;}
+
+  /* ---------- FAQ ---------- */
+  .faq-list{border-top:1px solid var(--line); max-width:820px;}
+  .faq-item{border-bottom:1px solid var(--line);}
+  .faq-item summary{
+    list-style:none; cursor:pointer; padding:26px 0;
+    display:flex; justify-content:space-between; align-items:center; gap:20px;
+    font-family:'Fraunces',serif; font-size:18px; font-weight:400; color:var(--bone);
+  }
+  .faq-item summary::-webkit-details-marker{display:none;}
+  .faq-item summary .plus{
+    font-family:'IBM Plex Mono',monospace; font-size:18px; color:var(--brass-bright);
+    flex-shrink:0; transition:transform .25s ease;
+  }
+  .faq-item[open] summary .plus{transform:rotate(45deg);}
+  .faq-item p{
+    color:var(--bone-dim); font-size:14.5px; line-height:1.7; max-width:640px;
+    padding-bottom:26px;
+  }
+
+  /* ---------- CTA ---------- */
+  .cta{
+    border-top:1px solid var(--line);
+    text-align:center;
+  }
+  .cta h2{font-size:clamp(34px,5vw,64px); max-width:820px; margin:20px auto 34px;}
+  .cta-actions{display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-bottom:10px;}
+  .cta-contacts{
+    margin-top:40px; display:flex; gap:36px; justify-content:center;
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--bone-dim); letter-spacing:0.04em;
+  }
+  .cta-contacts a:hover{color:var(--brass-bright);}
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    border-top:1px solid var(--line);
+    padding:40px 0;
+  }
+  .footer-row{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;}
+  .footer-row .logo{font-size:16px;}
+  .footer-links{display:flex; gap:26px; font-size:12.5px; color:var(--slate);}
+  .footer-links a:hover{color:var(--bone-dim);}
+  .footer-copy{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--slate); margin-top:18px; letter-spacing:0.04em;}
+
+  @media (max-width: 860px){
+    .wrap{padding:0 22px;}
+    nav{padding:18px 22px;}
+    .nav-links{display:none;}
+    .hero{padding-top:130px;}
+    .hero-top{grid-template-columns:1fr; gap:24px;}
+    .section-head{grid-template-columns:1fr;}
+    .services{grid-template-columns:1fr;}
+    .work-grid{grid-template-columns:1fr;}
+    .stats{grid-template-columns:1fr 1fr;}
+    .stat{border-bottom:1px solid var(--line);}
+    .process-row{grid-template-columns:50px 1fr; grid-template-areas:"num title" ". body";}
+    .process-row .pnum{grid-area:num;}
+    .process-row h3{grid-area:title;}
+    .process-row p{grid-area:body;}
+    .pano-panel{width:100vw;}
+    .cta-contacts{flex-direction:column; gap:14px;}
+    .footer-row{flex-direction:column; align-items:flex-start;}
+    .pricing-grid{grid-template-columns:1fr;}
+    .testi-grid{grid-template-columns:1fr;}
+    .faq-item summary{font-size:16px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <div class="logo">ZER<span class="o">Ø</span>TENSE</div>
+    <div class="nav-links">
+      <a href="#work">Work</a>
+      <a href="#services">Services</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="https://wa.me/917676000369?text=Hi%2C%20I%27d%20like%20to%20book%20a%20360%C2%B0%20walkthrough" class="nav-cta" target="_blank" rel="noopener">Book a walkthrough</a>
+  </nav>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero" style="padding-bottom:0;">
+    <div class="wrap">
+      <div class="hero-top">
+        <div>
+          <div class="eyebrow">360° Production House — Bangalore</div>
+          <h1>Every room, <span class="serif-light">seen whole,</span> before a single visit.</h1>
+        </div>
+        <div class="hero-sub">
+          We shoot, stitch and host immersive 360° tours for luxury homes, hospitality spaces and premium listings — built to make the far-away buyer feel like they've already walked through.
+        </div>
+      </div>
+      <div class="hero-actions">
+        <a href="https://wa.me/917676000369?text=Hi%2C%20I%27d%20like%20to%20book%20a%20360%C2%B0%20walkthrough" class="btn-primary" target="_blank" rel="noopener">Book a walkthrough</a>
+        <a href="#work" class="btn-secondary">See the work</a>
+      </div>
+    </div>
+
+    <div class="pano-shell" style="margin-top:56px;">
+      <div class="pano-viewport" id="panoViewport">
+        <div class="pano-strip" id="panoStrip">
+          <!-- Panel 1: Foyer / arch -->
+          <div class="pano-panel" style="background:linear-gradient(180deg,#141416,#0a0a0b);">
+            <svg viewBox="0 0 640 420" preserveAspectRatio="none">
+              <rect width="640" height="420" fill="#121214"/>
+              <path d="M120 420 V180 Q120 90 260 90 Q400 90 400 180 V420" fill="none" stroke="#b98a52" stroke-width="1.4" opacity="0.55"/>
+              <path d="M150 420 V190 Q150 115 260 115 Q370 115 370 190 V420" fill="none" stroke="#6c6f78" stroke-width="1" opacity="0.4"/>
+              <rect x="470" y="60" width="120" height="300" fill="none" stroke="#b98a52" stroke-width="1" opacity="0.35"/>
+              <line x1="470" y1="140" x2="590" y2="140" stroke="#6c6f78" stroke-width="0.6" opacity="0.4"/>
+              <line x1="470" y1="220" x2="590" y2="220" stroke="#6c6f78" stroke-width="0.6" opacity="0.4"/>
+              <line x1="470" y1="300" x2="590" y2="300" stroke="#6c6f78" stroke-width="0.6" opacity="0.4"/>
+              <circle cx="260" cy="70" r="3" fill="#e0ab6e"/>
+              <line x1="260" y1="0" x2="260" y2="67" stroke="#e0ab6e" stroke-width="0.6" opacity="0.5"/>
+            </svg>
+          </div>
+          <!-- Panel 2: Living space -->
+          <div class="pano-panel" style="background:linear-gradient(180deg,#161618,#0a0a0b);">
+            <svg viewBox="0 0 640 420" preserveAspectRatio="none">
+              <rect width="640" height="420" fill="#131315"/>
+              <rect x="60" y="260" width="220" height="90" rx="4" fill="none" stroke="#b98a52" stroke-width="1.2" opacity="0.5"/>
+              <rect x="80" y="240" width="180" height="24" rx="3" fill="none" stroke="#e0ab6e" stroke-width="1" opacity="0.4"/>
+              <circle cx="470" cy="120" r="46" fill="none" stroke="#6c6f78" stroke-width="0.8" opacity="0.4"/>
+              <line x1="470" y1="74" x2="470" y2="0" stroke="#6c6f78" stroke-width="0.6" opacity="0.4"/>
+              <path d="M400 420 L470 190 L540 420 Z" fill="none" stroke="#b98a52" stroke-width="0.8" opacity="0.25"/>
+              <rect x="340" y="300" width="60" height="60" fill="none" stroke="#e0ab6e" stroke-width="1" opacity="0.35"/>
+            </svg>
+          </div>
+          <!-- Panel 3: Staircase -->
+          <div class="pano-panel" style="background:linear-gradient(180deg,#141416,#0a0a0b);">
+            <svg viewBox="0 0 640 420" preserveAspectRatio="none">
+              <rect width="640" height="420" fill="#121214"/>
+              <g stroke="#b98a52" stroke-width="1" opacity="0.5" fill="none">
+                <line x1="120" y1="420" x2="180" y2="380"/>
+                <line x1="180" y1="380" x2="240" y2="340"/>
+                <line x1="240" y1="340" x2="300" y2="300"/>
+                <line x1="300" y1="300" x2="360" y2="260"/>
+                <line x1="360" y1="260" x2="420" y2="220"/>
+              </g>
+              <line x1="420" y1="220" x2="420" y2="60" stroke="#6c6f78" stroke-width="0.8" opacity="0.4"/>
+              <rect x="470" y="40" width="100" height="180" fill="none" stroke="#e0ab6e" stroke-width="0.8" opacity="0.3"/>
+            </svg>
+          </div>
+          <!-- Panel 4: Window / skyline -->
+          <div class="pano-panel" style="background:linear-gradient(180deg,#161618,#0a0a0b);">
+            <svg viewBox="0 0 640 420" preserveAspectRatio="none">
+              <rect width="640" height="420" fill="#131315"/>
+              <rect x="150" y="50" width="340" height="320" fill="none" stroke="#b98a52" stroke-width="1.2" opacity="0.5"/>
+              <line x1="320" y1="50" x2="320" y2="370" stroke="#6c6f78" stroke-width="0.6" opacity="0.4"/>
+              <line x1="150" y1="210" x2="490" y2="210" stroke="#6c6f78" stroke-width="0.6" opacity="0.4"/>
+              <rect x="200" y="250" width="16" height="90" fill="#e0ab6e" opacity="0.15"/>
+              <rect x="240" y="220" width="16" height="120" fill="#e0ab6e" opacity="0.2"/>
+              <rect x="280" y="270" width="16" height="70" fill="#e0ab6e" opacity="0.15"/>
+              <rect x="380" y="200" width="16" height="140" fill="#e0ab6e" opacity="0.22"/>
+              <rect x="420" y="240" width="16" height="100" fill="#e0ab6e" opacity="0.15"/>
+            </svg>
+          </div>
+        </div>
+        <div class="pano-hint"><span class="arrows">←</span> drag to look around <span class="arrows">→</span></div>
+        <div class="dial-wrap">
+          <svg class="dial" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="24" fill="none" stroke="#3a3a3d" stroke-width="1"/>
+            <circle cx="28" cy="28" r="24" fill="none" stroke="#e0ab6e" stroke-width="1.6"
+              id="dialArc" stroke-dasharray="150.8" stroke-dashoffset="150.8" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+            <circle cx="28" cy="4" r="2" fill="#e0ab6e" id="dialNeedle"/>
+          </svg>
+          <div>
+            <div class="dial-deg" id="dialDeg">000°</div>
+            <div class="dial-label">Bearing</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee">
+    <div class="marquee-track">
+      <span>K Narayanpura</span><span>Whitefield</span><span>Koramangala</span><span>Electronic City</span><span>Indiranagar</span><span>HSR Layout</span>
+      <span>K Narayanpura</span><span>Whitefield</span><span>Koramangala</span><span>Electronic City</span><span>Indiranagar</span><span>HSR Layout</span>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">What we shoot</div>
+          <h2>One production day. A space that shows itself.</h2>
+        </div>
+        <p>Every service is built around a single outcome: someone scrolling on their phone should be able to feel the ceiling height, the light, the walk from room to room — without being there.</p>
+      </div>
+
+      <div class="services">
+        <div class="service-card">
+          <svg class="service-icon" viewBox="0 0 34 34" fill="none"><rect x="4" y="4" width="26" height="26" rx="1" stroke="#b98a52" stroke-width="1.2"/><path d="M4 22 L13 13 L20 20 L30 10" stroke="#e0ab6e" stroke-width="1.2"/></svg>
+          <div class="service-num">01</div>
+          <h3>Residences &amp; Villas</h3>
+          <p>Full-property 360° capture for premium homes and PG residences — every floor, block and common area, mapped into one continuous walkthrough a buyer can navigate themselves.</p>
+        </div>
+        <div class="service-card">
+          <svg class="service-icon" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="12" stroke="#b98a52" stroke-width="1.2"/><path d="M17 5 A12 12 0 0 1 29 17" stroke="#e0ab6e" stroke-width="1.2"/></svg>
+          <div class="service-num">02</div>
+          <h3>Hospitality &amp; Retail</h3>
+          <p>Restaurants, boutique hotels and storefronts, shot to convey atmosphere as much as layout — the kind of tour that gets shared, not just browsed.</p>
+        </div>
+        <div class="service-card">
+          <svg class="service-icon" viewBox="0 0 34 34" fill="none"><path d="M5 29 L17 5 L29 29 Z" stroke="#b98a52" stroke-width="1.2"/><line x1="11" y1="17" x2="23" y2="17" stroke="#e0ab6e" stroke-width="1"/></svg>
+          <div class="service-num">03</div>
+          <h3>Hosting &amp; Staging Add-ons</h3>
+          <p>Branded hotspots, floor-plan overlays, dollhouse views and embeddable links — delivered ready to drop into a listing, a WhatsApp message, or your own site.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section id="work">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Recent tours</div>
+          <h2>A small selection of spaces we've mapped.</h2>
+        </div>
+        <p>Each tour below links out to a live, navigable walkthrough — the same format your listing would get.</p>
+      </div>
+
+      <div class="work-grid">
+        <div class="work-card" id="tejaShreeCard" style="perspective:none;">
+          <div class="work-face" id="tejaShreeFace">
+            <iframe width="100%" height="640" frameborder="0" allow="xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen scrolling="no" style="position:absolute; inset:0; width:100%; height:100%; border:0;" src="https://kuula.co/share/collection/7T0Wf?logo=0&info=0&fs=1&vr=1&sd=1&initload=0&thumbs=1"></iframe>
+            <div class="work-meta" style="pointer-events:none;">
+              <div class="work-tag">Residence</div>
+              <div class="work-title">Teja Shree</div>
+              <div class="work-sub">Bangalore · Live 360° tour</div>
+            </div>
+          </div>
+        </div>
+        <div class="work-card">
+          <div class="work-face">
+            <svg viewBox="0 0 400 500" preserveAspectRatio="none">
+              <rect width="400" height="500" fill="#141416"/>
+              <path d="M60 420 L200 120 L340 420 Z" fill="none" stroke="#b98a52" stroke-width="1"/>
+              <line x1="130" y1="300" x2="270" y2="300" stroke="#6c6f78" stroke-width="0.6" opacity="0.5"/>
+            </svg>
+            <div class="work-meta">
+              <div class="work-tag">Hospitality</div>
+              <div class="work-title">Copper &amp; Clay Café</div>
+              <div class="work-sub">Indiranagar · dine-in + patio</div>
+            </div>
+          </div>
+        </div>
+        <div class="work-card">
+          <div class="work-face">
+            <svg viewBox="0 0 400 500" preserveAspectRatio="none">
+              <rect width="400" height="500" fill="#131315"/>
+              <rect x="80" y="90" width="240" height="320" fill="none" stroke="#e0ab6e" stroke-width="0.8" opacity="0.5"/>
+              <line x1="80" y1="250" x2="320" y2="250" stroke="#6c6f78" stroke-width="0.6" opacity="0.4"/>
+              <line x1="200" y1="90" x2="200" y2="410" stroke="#6c6f78" stroke-width="0.6" opacity="0.4"/>
+            </svg>
+            <div class="work-meta">
+              <div class="work-tag">Retail</div>
+              <div class="work-title">Aara Studio Showroom</div>
+              <div class="work-sub">Koramangala · 1,800 sq ft</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section id="process">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">How a tour gets made</div>
+          <h2>Four steps, one visit to site.</h2>
+        </div>
+        <p>This is a fixed sequence — we don't skip steps, and neither should you, since each one is what makes the final tour feel seamless instead of stitched.</p>
+      </div>
+
+      <div class="process-list">
+        <div class="process-row">
+          <div class="pnum">01</div>
+          <div>
+            <h3>Walk &amp; Shoot</h3>
+            <div class="ptime">On site · 1.5–3 hrs</div>
+          </div>
+          <p>We move through the property once, capturing every room from fixed nodal points with a 360° rig — no separate visits, no reshoots.</p>
+        </div>
+        <div class="process-row">
+          <div class="pnum">02</div>
+          <div>
+            <h3>Stitch &amp; Grade</h3>
+            <div class="ptime">24–48 hrs</div>
+          </div>
+          <p>Panoramas are aligned, exposure-matched and colour-graded so the whole tour reads as one consistent space, not a set of separate photos.</p>
+        </div>
+        <div class="process-row">
+          <div class="pnum">03</div>
+          <div>
+            <h3>Link &amp; Hotspot</h3>
+            <div class="ptime">1 day</div>
+          </div>
+          <p>Rooms are connected with navigation points, and floor plans, pricing tags or branded notes are added wherever they help someone decide faster.</p>
+        </div>
+        <div class="process-row">
+          <div class="pnum">04</div>
+          <div>
+            <h3>Deliver &amp; Host</h3>
+            <div class="ptime">Same week</div>
+          </div>
+          <p>You get a shareable link, an embed code for your own site, and the raw panoramas — hosted on our end, with no recurring cost to you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Investment</div>
+          <h2>Pricing that scales with the space.</h2>
+        </div>
+        <p>Every package includes shoot, stitch, hosting and a shareable link. Larger properties and multi-unit portfolios are quoted after a quick walk-through call.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <div class="price-card">
+          <div class="price-tag">Single Space</div>
+          <h3>Starter</h3>
+          <div class="price-amount">₹6,999 <span>/ space</span></div>
+          <div class="price-desc">For a single home, apartment, or small retail unit up to 1,500 sq ft.</div>
+          <ul class="price-list">
+            <li>Full 360° capture, up to 8 nodes</li>
+            <li>Stitching &amp; colour grade</li>
+            <li>Hosted link, 48hr delivery</li>
+            <li>1 round of revisions</li>
+          </ul>
+          <a href="https://wa.me/917676000369?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20the%20Starter%20tour%20package" class="btn-secondary" target="_blank" rel="noopener">Enquire</a>
+        </div>
+        <div class="price-card featured">
+          <div class="price-tag">Most Booked</div>
+          <h3>Signature</h3>
+          <div class="price-amount">₹14,999 <span>/ property</span></div>
+          <div class="price-desc">For full homes, PG blocks, or hospitality spaces up to 5,000 sq ft.</div>
+          <ul class="price-list">
+            <li>Full 360° capture, unlimited nodes</li>
+            <li>Branded hotspots &amp; floor-plan overlay</li>
+            <li>Hosted link + embeddable code</li>
+            <li>2 rounds of revisions</li>
+            <li>Priority 24–48hr delivery</li>
+          </ul>
+          <a href="https://wa.me/917676000369?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20the%20Signature%20tour%20package" class="btn-secondary" target="_blank" rel="noopener">Enquire</a>
+        </div>
+        <div class="price-card">
+          <div class="price-tag">Multi-Property</div>
+          <h3>Portfolio</h3>
+          <div class="price-amount">Custom</div>
+          <div class="price-desc">For agencies, builders, or PG chains with multiple listings to shoot on a schedule.</div>
+          <ul class="price-list">
+            <li>Volume pricing per property</li>
+            <li>Dedicated shoot calendar</li>
+            <li>Centralised dashboard of all tours</li>
+            <li>Ongoing revisions &amp; re-shoots</li>
+          </ul>
+          <a href="https://wa.me/917676000369?text=Hi%2C%20I%27d%20like%20a%20custom%20quote%20for%20multiple%20properties" class="btn-secondary" target="_blank" rel="noopener">Get a quote</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">140+</div>
+      <div class="stat-label">Properties Toured</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">48hr</div>
+      <div class="stat-label">Avg. Delivery</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">3.2×</div>
+      <div class="stat-label">More Enquiries per Listing</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">6</div>
+      <div class="stat-label">Bangalore Zones Covered</div>
+    </div>
+  </div>
+
+  <!-- TESTIMONIALS -->
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">What clients say</div>
+          <h2>Fewer calls, faster decisions.</h2>
+        </div>
+        <p>A few notes from people who've had a space toured with us.</p>
+      </div>
+
+      <div class="testi-grid">
+        <div class="testi-card">
+          <blockquote>"Prospective tenants used to ask the same twelve questions on every call. Now they've already walked the block before they message us."</blockquote>
+          <cite>Owner<span class="role">SSA Homes PG</span></cite>
+        </div>
+        <div class="testi-card">
+          <blockquote>"We sent the tour link instead of scheduling a site visit for out-of-town buyers. Two of them signed without ever walking in first."</blockquote>
+          <cite>Property Consultant<span class="role">Whitefield, Bangalore</span></cite>
+        </div>
+        <div class="testi-card">
+          <blockquote>"The turnaround was faster than our own photographer, and the tour actually gets shared on Instagram — the photos never did."</blockquote>
+          <cite>Founder<span class="role">Boutique café, Indiranagar</span></cite>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Questions</div>
+          <h2>Before you book.</h2>
+        </div>
+        <p>Anything else, just message us on WhatsApp — usually a same-day reply.</p>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item" open>
+          <summary>How long does a shoot actually take?<span class="plus">+</span></summary>
+          <p>Most single homes or retail units take 1.5–2 hours on site. Larger properties like full PG blocks or hotels can run up to 3–4 hours depending on the number of rooms and floors.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Do you need to visit the property beforehand?<span class="plus">+</span></summary>
+          <p>No — we shoot in a single visit. If the property is large or has an unusual layout, a quick phone call beforehand helps us plan the route, but it's not required.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Where is the tour hosted, and does it cost extra?<span class="plus">+</span></summary>
+          <p>Tours are hosted on our platform at no recurring cost to you. You get a shareable link and an embed code to drop into your own website or listing, and it stays live as long as you're an active client.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can we get changes made after delivery?<span class="plus">+</span></summary>
+          <p>Yes — Starter includes one round of revisions and Signature includes two, covering things like re-ordering rooms, updating hotspots, or swapping a panorama. Larger changes like a reshoot are quoted separately.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Do you shoot outside Bangalore?<span class="plus">+</span></summary>
+          <p>Our core coverage is Bangalore — K Narayanpura, Whitefield, Electronic City, Koramangala and nearby zones. For properties further out or in other cities, message us and we'll let you know if it's possible for your dates.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" id="contact">
+    <div class="wrap">
+      <div class="eyebrow">Get a tour made</div>
+      <h2>Tell us the address. <span class="serif-light">We'll bring the rig.</span></h2>
+      <div class="cta-actions">
+        <a href="https://wa.me/917676000369" class="btn-primary" target="_blank" rel="noopener">Message on WhatsApp</a>
+        <a href="https://instagram.com/zerotense360" class="btn-secondary" target="_blank" rel="noopener">@zerotense360</a>
+      </div>
+      <div class="cta-contacts">
+        <a href="tel:+917676000369">+91 76760 00369</a>
+        <a href="mailto:hello@zerotense.studio">hello@zerotense.studio</a>
+        <a href="https://instagram.com/zerotense360" target="_blank" rel="noopener">Instagram</a>
+        <span>Bangalore, India</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <div>
+      <div class="logo">ZER<span class="o">Ø</span>TENSE</div>
+      <div class="footer-copy">© 2026 ZERØTENSE. 360° production house, Bangalore.</div>
+    </div>
+    <div class="footer-links">
+      <a href="#services">Services</a>
+      <a href="#work">Work</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    const viewport = document.getElementById('panoViewport');
+    const strip = document.getElementById('panoStrip');
+    const dialDeg = document.getElementById('dialDeg');
+    const dialArc = document.getElementById('dialArc');
+    const CIRC = 150.8;
+
+    let panelWidth = 640;
+    function updatePanelWidth(){
+      panelWidth = window.innerWidth <= 860 ? window.innerWidth : 640;
+    }
+    updatePanelWidth();
+    window.addEventListener('resize', updatePanelWidth);
+
+    let isDown = false;
+    let startX = 0;
+    let scrollLeft = 0;
+    let current = 0;
+    const maxScroll = () => (strip.scrollWidth - viewport.clientWidth);
+
+    function setPosition(x){
+      const max = maxScroll();
+      current = Math.min(Math.max(x, 0), max);
+      strip.style.transform = 'translateX(' + (-current) + 'px)';
+      const pct = max > 0 ? (current / max) : 0;
+      const deg = Math.round(pct * 359);
+      dialDeg.textContent = String(deg).padStart(3,'0') + '°';
+      dialArc.style.strokeDashoffset = CIRC - (pct * CIRC);
+    }
+
+    viewport.addEventListener('pointerdown', (e) => {
+      isDown = true;
+      viewport.classList.add('dragging');
+      startX = e.clientX;
+      scrollLeft = current;
+      viewport.setPointerCapture(e.pointerId);
+    });
+    viewport.addEventListener('pointermove', (e) => {
+      if(!isDown) return;
+      const dx = e.clientX - startX;
+      setPosition(scrollLeft - dx);
+    });
+    function release(){ isDown = false; viewport.classList.remove('dragging'); }
+    viewport.addEventListener('pointerup', release);
+    viewport.addEventListener('pointercancel', release);
+    viewport.addEventListener('pointerleave', () => { if(isDown) release(); });
+
+    // gentle auto-drift hint on load, then stop
+    let t = 0;
+    let autoplay = true;
+    function driftFrame(){
+      if(!autoplay) return;
+      t += 1;
+      setPosition(t * 1.1);
+      if(t < 60){ requestAnimationFrame(driftFrame); }
+    }
+    viewport.addEventListener('pointerdown', () => { autoplay = false; }, { once:true });
+    requestAnimationFrame(driftFrame);
+
+    setPosition(0);
+  })();
+</script>
+
+</body>
+</html>
